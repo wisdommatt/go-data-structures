@@ -1,2 +1,2 @@
 tests: 
-	go test ./... -cover
+	go test ./... -cover -v

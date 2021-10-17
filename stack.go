@@ -6,7 +6,6 @@ import (
 
 type Stack struct {
 	linkedList *DoublyLinkedList
-	length     int
 }
 
 // NewStack returns a new stack data structure.
@@ -23,13 +22,12 @@ func (s *Stack) Size() int {
 
 // IsEmpty returns true if the stack is empty else false.
 func (s *Stack) IsEmpty() bool {
-	return s.linkedList.Size() == 0
+	return s.linkedList.IsEmpty()
 }
 
 // Push adds a new item to the stack.
 func (s *Stack) Push(item interface{}) *Stack {
 	s.linkedList.AddHead(&DoublyLinkedListNode{Data: item})
-	s.length++
 	return s
 }
 
