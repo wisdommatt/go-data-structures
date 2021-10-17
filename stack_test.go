@@ -7,17 +7,26 @@ import (
 
 func TestStack_Size(t *testing.T) {
 	tests := []struct {
-		name string
-		want int
+		name  string
+		items []interface{}
+		want  int
 	}{
 		{
 			name: "empty test case",
 			want: 0,
 		},
+		{
+			name:  "3 items stack",
+			items: []interface{}{1, "Helllo", 3.4},
+			want:  3,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := NewStack()
+			for _, item := range tt.items {
+				s.Push(item)
+			}
 			if got := s.Size(); got != tt.want {
 				t.Errorf("Stack.Size() = %v, want %v", got, tt.want)
 			}
