@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestHeap_Insert(t *testing.T) {
+func TestMinHeap_Insert(t *testing.T) {
 	tests := []struct {
 		name              string
 		items             []float64
@@ -99,7 +99,7 @@ func TestHeap_Insert(t *testing.T) {
 	}
 }
 
-func TestHeap_Poll(t *testing.T) {
+func TestMinHeap_Poll(t *testing.T) {
 	tests := []struct {
 		name              string
 		items             []float64
@@ -204,7 +204,7 @@ func TestHeap_Poll(t *testing.T) {
 	}
 }
 
-func TestHeap_Remove(t *testing.T) {
+func TestMinHeap_Remove(t *testing.T) {
 	type args struct {
 		item float64
 	}
@@ -294,7 +294,7 @@ func TestHeap_Remove(t *testing.T) {
 	}
 }
 
-func TestHeap_Contains(t *testing.T) {
+func TestMinHeap_Contains(t *testing.T) {
 	type args struct {
 		item float64
 	}
@@ -333,7 +333,7 @@ func TestHeap_Contains(t *testing.T) {
 	}
 }
 
-func TestHeap_Size(t *testing.T) {
+func TestMinHeap_Size(t *testing.T) {
 	tests := []struct {
 		name  string
 		items []float64
@@ -357,37 +357,6 @@ func TestHeap_Size(t *testing.T) {
 			}
 			if got := h.Size(); got != tt.want {
 				t.Errorf("Heap.Size() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestMinHeap_Insert(t *testing.T) {
-	type fields struct {
-		hashTable map[float64][]int
-		items     []float64
-		length    int
-	}
-	type args struct {
-		item float64
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		args   args
-		want   *MinHeap
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			h := &MinHeap{
-				hashTable: tt.fields.hashTable,
-				items:     tt.fields.items,
-				length:    tt.fields.length,
-			}
-			if got := h.Insert(tt.args.item); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("MinHeap.Insert() = %v, want %v", got, tt.want)
 			}
 		})
 	}
