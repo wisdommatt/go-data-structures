@@ -86,8 +86,8 @@ func TestMinHeap_Insert(t *testing.T) {
 			for _, item := range tt.items {
 				h.Insert(item)
 			}
-			if h.length != len(tt.want) {
-				t.Errorf("Heap.Insert() = %v, want %v", h.length, len(tt.want))
+			if h.Size() != len(tt.want) {
+				t.Errorf("Heap.Insert() = %v, want %v", h.Size(), len(tt.want))
 			}
 			if !reflect.DeepEqual(h.items, tt.want) {
 				t.Errorf("Heap.Insert() = %v, want %v", h.items, tt.want)
@@ -187,12 +187,13 @@ func TestMinHeap_Poll(t *testing.T) {
 				h.Insert(item)
 			}
 			for i := 0; i < tt.pollCount; i++ {
-				if err := h.Poll(); err != nil && (err != nil) != tt.wantErr {
+				_, err := h.Poll()
+				if err != nil && (err != nil) != tt.wantErr {
 					t.Errorf("Heap.Poll() error = %v, wantErr %v", err, tt.wantErr)
 				}
 			}
-			if h.length != len(tt.want) {
-				t.Errorf("Heap.Poll() = %v, want %v", h.length, len(tt.want))
+			if h.Size() != len(tt.want) {
+				t.Errorf("Heap.Poll() = %v, want %v", h.Size(), len(tt.want))
 			}
 			if !reflect.DeepEqual(h.items, tt.want) {
 				t.Errorf("Heap.Poll() items = %v, \n want %v", h.items, tt.want)
@@ -214,13 +215,15 @@ func TestMinHeap_Remove(t *testing.T) {
 		items             []float64
 		want              []float64
 		expectedHashTable map[float64][]int
+		removedItem       float64
 		wantErr           bool
 	}{
 		{
-			name:  "removing first item",
-			items: []float64{20.3, 45.6, 56.2},
-			want:  []float64{45.6, 56.2},
-			args:  args{item: 20.3},
+			name:        "removing first item",
+			items:       []float64{20.3, 45.6, 56.2},
+			want:        []float64{45.6, 56.2},
+			args:        args{item: 20.3},
+			removedItem: 20.3,
 			expectedHashTable: map[float64][]int{
 				20.3: {},
 				45.6: {0},
@@ -228,10 +231,11 @@ func TestMinHeap_Remove(t *testing.T) {
 			},
 		},
 		{
-			name:  "removing invalid item",
-			items: []float64{4, 2, 5, 6, 6, 7},
-			want:  []float64{2, 4, 5, 6, 6, 7},
-			args:  args{item: 3002},
+			name:        "removing invalid item",
+			items:       []float64{4, 2, 5, 6, 6, 7},
+			want:        []float64{2, 4, 5, 6, 6, 7},
+			args:        args{item: 3002},
+			removedItem: 0,
 			expectedHashTable: map[float64][]int{
 				2: {0},
 				4: {1},
@@ -242,10 +246,11 @@ func TestMinHeap_Remove(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name:  "removing a middle item",
-			items: []float64{8, 0.33, 0.44, 0.23, 0.12},
-			want:  []float64{0.12, 0.23, 0.33, 8},
-			args:  args{item: 0.44},
+			name:        "removing a middle item",
+			items:       []float64{8, 0.33, 0.44, 0.23, 0.12},
+			want:        []float64{0.12, 0.23, 0.33, 8},
+			args:        args{item: 0.44},
+			removedItem: 0.44,
 			expectedHashTable: map[float64][]int{
 				0.44: {},
 				0.12: {0},
@@ -255,10 +260,11 @@ func TestMinHeap_Remove(t *testing.T) {
 			},
 		},
 		{
-			name:  "removing an extreme item",
-			items: []float64{1, 5, 9},
-			want:  []float64{1, 5},
-			args:  args{item: 9},
+			name:        "removing an extreme item",
+			items:       []float64{1, 5, 9},
+			want:        []float64{1, 5},
+			args:        args{item: 9},
+			removedItem: 9,
 			expectedHashTable: map[float64][]int{
 				1: {0},
 				5: {1},
@@ -278,11 +284,15 @@ func TestMinHeap_Remove(t *testing.T) {
 			for _, item := range tt.items {
 				h.Insert(item)
 			}
-			if err := h.Remove(tt.args.item); (err != nil) != tt.wantErr {
+			item, err := h.Remove(tt.args.item)
+			if (err != nil) != tt.wantErr {
 				t.Errorf("Heap.Remove() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			if h.length != len(tt.want) {
-				t.Errorf("Heap.Remove() = %v, want %v", h.length, len(tt.want))
+			if item != tt.removedItem {
+				t.Errorf("Heap.Remove() item = %v, removedItem %v", item, tt.removedItem)
+			}
+			if h.Size() != len(tt.want) {
+				t.Errorf("Heap.Remove() = %v, want %v", h.Size(), len(tt.want))
 			}
 			if !reflect.DeepEqual(h.items, tt.want) {
 				t.Errorf("Heap.Remove() items = %v, \n want %v", h.items, tt.want)
@@ -357,6 +367,80 @@ func TestMinHeap_Size(t *testing.T) {
 			}
 			if got := h.Size(); got != tt.want {
 				t.Errorf("Heap.Size() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMinHeap_Peek(t *testing.T) {
+	tests := []struct {
+		name    string
+		want    float64
+		items   []float64
+		wantErr bool
+	}{
+		{
+			name:    "peeking from empty heap",
+			want:    0,
+			wantErr: true,
+		},
+		{
+			name:  "peeking from heap with one item",
+			items: []float64{4},
+			want:  4,
+		},
+		{
+			name:  "peeking from heep with 5 items",
+			items: []float64{8, 4, 5, 3, 6},
+			want:  3,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			h := NewMinHeap()
+			for _, item := range tt.items {
+				h.Insert(item)
+			}
+			got, err := h.Peek()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("MinHeap.Peek() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("MinHeap.Peek() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMinHeap_GetList(t *testing.T) {
+	tests := []struct {
+		name  string
+		items []float64
+		want  []float64
+	}{
+		{
+			name: "empty heap",
+		},
+		{
+			name:  "heap with 1 item",
+			items: []float64{0},
+			want:  []float64{0},
+		},
+		{
+			name:  "heap with 5 items",
+			items: []float64{8, 4, 5, 3, 6},
+			want:  []float64{3, 4, 5, 8, 6},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			h := NewMinHeap()
+			for _, item := range tt.items {
+				h.Insert(item)
+			}
+			if got := h.GetList(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("MinHeap.GetList() = %v, want %v", got, tt.want)
 			}
 		})
 	}
