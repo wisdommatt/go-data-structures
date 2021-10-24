@@ -59,20 +59,21 @@ func (h *MinHeap) getNodeParentIndex(nodeIndex int) int {
 }
 
 // Poll removes the root element from the heap.
-func (h *MinHeap) Poll() error {
+func (h *MinHeap) Poll() (float64, error) {
 	return h.removeAtPosition(0)
 }
 
 // removeAtPosition removes an element from the specified position.
-func (h *MinHeap) removeAtPosition(position int) error {
+func (h *MinHeap) removeAtPosition(position int) (float64, error) {
 	if h.length == 0 {
-		return errors.New("heap is empty")
+		return 0, errors.New("heap is empty")
 	}
-	h.removePositionFromHashTable(h.items[position], position)
+	itemAtPos := h.items[position]
+	h.removePositionFromHashTable(itemAtPos, position)
 	if h.length == 1 {
 		h.items = nil
 		h.length--
-		return nil
+		return itemAtPos, nil
 	}
 	h.items[position] = h.items[h.length-1]
 	h.items = h.items[:h.length-1]
@@ -86,7 +87,7 @@ func (h *MinHeap) removeAtPosition(position int) error {
 		h.hashTable[h.items[position]] = append(h.hashTable[h.items[position]], position)
 		h.bubbleDownFromIndex(position)
 	}
-	return nil
+	return itemAtPos, nil
 }
 
 func (h *MinHeap) bubbleDownFromIndex(index int) {
@@ -157,13 +158,10 @@ func (h *MinHeap) swap(index1, index2 int, bubbleUp bool) {
 }
 
 // Remove removes an item from the heap.
-func (h *MinHeap) Remove(item float64) error {
-	if h.length == 0 {
-		return errors.New("heap is empty")
-	}
+func (h *MinHeap) Remove(item float64) (float64, error) {
 	positions, ok := h.hashTable[item]
 	if !ok || len(positions) == 0 {
-		return fmt.Errorf("%f is not in heap", item)
+		return 0, fmt.Errorf("%f is not in heap", item)
 	}
 	// remove the last position from the hast table.
 	lastPosition := positions[len(positions)-1]
@@ -182,4 +180,19 @@ func (h *MinHeap) Contains(item float64) bool {
 // Size returns the size of the heap.
 func (h *MinHeap) Size() int {
 	return h.length
+}
+
+// Peek returns the smallest item of the heap without removing it.
+func (h *MinHeap) Peek() (float64, error) {
+	if h.Size() == 0 {
+		return 0, errors.New("heap is empty")
+	}
+	return h.items[0], nil
+}
+
+// GetList returns the heap items as a list.
+//
+// time complexity: 0(1)
+func (h *MinHeap) GetList() []float64 {
+	return h.items
 }
