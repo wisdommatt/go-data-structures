@@ -37,7 +37,8 @@ func (q *MinPriorityQueue) Contains(item float64) bool {
 // Iterate iterates through the queue and executes the callback function
 // f for each iteration.
 func (q *MinPriorityQueue) Iterate(f func(index int, item float64)) {
-	for k, v := range q.minHeap.GetList() {
+	list := q.minHeap.GetList()
+	for k, v := range list {
 		f(k, v)
 	}
 }
