@@ -6,8 +6,6 @@ import (
 )
 
 // MinHeap represents the min-heap data structure.
-//
-// this heap is a min heap.
 type MinHeap struct {
 	hashTable map[float64][]int
 	items     []float64
