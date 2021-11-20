@@ -79,6 +79,10 @@ func (l *DoublyLinkedList) Clear() {
 
 // Iterate iterates through the doubly linked list and executes the callback function
 // f for each iteration.
+//
+// TODO(wisdommatt): include iterator with Stop method in the f callback function
+// parameters. The reason for this is to stop the iteration if the remaining items
+// are not needed.
 func (l *DoublyLinkedList) Iterate(f func(index int, node *DoublyLinkedListNode)) {
 	trav := l.head
 	index := 0
