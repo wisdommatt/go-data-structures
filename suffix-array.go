@@ -97,10 +97,6 @@ func (sa *SuffixArray) buildLCPArray() {
 }
 
 // UniqueSubstrings returns the number of unique substrings in the text.
-//
-// Formula:
-//     n := lenght(text)
-//
 func (sa *SuffixArray) UniqueSubstrings() int {
 	n := len(sa.text)
 	lcpSum := 0
